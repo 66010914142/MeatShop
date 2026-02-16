@@ -1,0 +1,63 @@
+/* ตั้งค่าฟอนต์หลักทั้งหน้า */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f5f5f5; /* สีพื้นหลังเทาอ่อนๆ */
+    margin: 20px;
+}
+
+/* --- ส่วนตาราง --- */
+.product-table {
+    width: 100%;
+    max-width: 1200px; /* จำกัดความกว้างไม่ให้ยาวเกินไป */
+    margin: 0 auto;    /* จัดกึ่งกลางหน้าจอ */
+    border-collapse: collapse; /* รวมเส้นขอบตารางให้เป็นเส้นเดียว */
+    background-color: white;
+}
+
+/* --- ช่องสินค้า (TD) --- */
+.product-table td {
+    border: 1px solid #e5e5e5; /* เส้นขอบสีเทาจางๆ */
+    width: 25%; /* แบ่ง 4 ช่องเท่ากัน (100% / 4) */
+    padding: 0; /* ไม่ให้มีช่องว่างขอบรูป */
+    vertical-align: top;
+    position: relative; /* เพื่อให้วางป้ายลดราคาได้ */
+    transition: all 0.2s; /* เอฟเฟกต์นุ่มนวลเวลาชี้ */
+}
+
+/* เอฟเฟกต์ตอนเอาเมาส์ชี้ที่ช่องสินค้า */
+.product-table td:hover {
+    border: 1px solid #ee4d2d; /* เปลี่ยนขอบเป็นสีส้ม */
+    box-shadow: 0 0 10px rgba(0,0,0,0.1); /* มีเงาลอยขึ้นมา */
+    cursor: pointer;
+    z-index: 1; /* ให้ลอยทับเส้นขอบเพื่อนข้างๆ */
+}
+
+/* ตัวอย่างในไฟล์ Style.css */
+.product-img {
+    width: 200px;  /* หรือกำหนดขนาดอื่นๆ ไว้ */
+}
+img {
+    max-width: 100%;
+}
+
+/* --- กล่องข้อความด้านล่างรูป --- */
+.product-info {
+    padding: 10px;
+}
+
+/* ชื่อสินค้า */
+.product-name {
+    font-size: 14px;
+    color: #333;
+    line-height: 1.4;
+    height: 40px; /* บังคับความสูง */
+    overflow: hidden; /* ถ้าข้อความยาวเกินให้ซ่อน */
+    margin-bottom: 5px;
+}
+
+/* ราคา */
+.price {
+    font-size: 18px;
+    color: #ee4d2d; /* สีส้ม Shopee */
+    font-weight: bold;
+}
