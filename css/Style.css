@@ -1,63 +1,147 @@
-/* ตั้งค่าฟอนต์หลักทั้งหน้า */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
 body {
     font-family: 'Arial', sans-serif;
-    background-color: #f5f5f5; /* สีพื้นหลังเทาอ่อนๆ */
-    margin: 20px;
+    background-color: #f5f5f5; /* พื้นหลังสีเทาอ่อนแบบเว็บขายของ */
+    padding: 20px;
 }
 
-/* --- ส่วนตาราง --- */
-.product-table {
-    width: 100%;
-    max-width: 1200px; /* จำกัดความกว้างไม่ให้ยาวเกินไป */
-    margin: 0 auto;    /* จัดกึ่งกลางหน้าจอ */
-    border-collapse: collapse; /* รวมเส้นขอบตารางให้เป็นเส้นเดียว */
-    background-color: white;
+.container {
+    max-width: 1000px; /* จำกัดความกว้างให้พอดีสายตา */
+    margin: 0 auto;
 }
 
-/* --- ช่องสินค้า (TD) --- */
-.product-table td {
-    border: 1px solid #e5e5e5; /* เส้นขอบสีเทาจางๆ */
-    width: 25%; /* แบ่ง 4 ช่องเท่ากัน (100% / 4) */
-    padding: 0; /* ไม่ให้มีช่องว่างขอบรูป */
-    vertical-align: top;
-    position: relative; /* เพื่อให้วางป้ายลดราคาได้ */
-    transition: all 0.2s; /* เอฟเฟกต์นุ่มนวลเวลาชี้ */
+h1 {
+    margin-bottom: 20px;
+    color: #333;
+    font-size: 24px;
 }
 
-/* เอฟเฟกต์ตอนเอาเมาส์ชี้ที่ช่องสินค้า */
-.product-table td:hover {
-    border: 1px solid #ee4d2d; /* เปลี่ยนขอบเป็นสีส้ม */
-    box-shadow: 0 0 10px rgba(0,0,0,0.1); /* มีเงาลอยขึ้นมา */
-    cursor: pointer;
-    z-index: 1; /* ให้ลอยทับเส้นขอบเพื่อนข้างๆ */
+/* --- ตัวจัดการตาราง (สร้างเป็น Grid คอลัมน์เล็กๆ) --- */
+.product-grid {
+    display: grid;
+    /* บังคับขนาดกล่องให้เล็ก แถวละ 4-5 ชิ้น */
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); 
+    gap: 15px; /* เพิ่มระยะห่างระหว่างกล่องนิดหน่อยให้ดูไม่อึดอัด */
 }
 
-/* ตัวอย่างในไฟล์ Style.css */
+/* --- กล่องสินค้า --- */
+.product-card {
+    background-color: #fff;
+    border: 1px solid transparent;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s, border 0.2s, box-shadow 0.2s;
+    padding-bottom: 10px; /* เพิ่มพื้นที่ด้านล่างกล่องให้ปุ่ม */
+}
+
+/* เอฟเฟกต์ตอนชี้เมาส์ */
+.product-card:hover {
+    border: 1px solid #ee4d2d;
+    transform: translateY(-2px); /* ลอยขึ้นนิดๆ */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+/* --- รูปภาพ (บังคับเล็กและเป็นสี่เหลี่ยมจัตุรัส) --- */
 .product-img {
-    width: 200px;  /* หรือกำหนดขนาดอื่นๆ ไว้ */
-}
-img {
-    max-width: 100%;
+    width: 100%;
+    aspect-ratio: 1 / 1; /* บังคับให้เป็นสัดส่วน 1:1 เสมอ */
+    object-fit: contain; /* รูปไม่เบี้ยว */
+    padding: 10px; /* เพิ่ม padding ให้รูปมีขอบขาวรอบๆ ตามเรฟ */
 }
 
-/* --- กล่องข้อความด้านล่างรูป --- */
+/* --- ส่วนข้อมูลด้านล่างรูป --- */
 .product-info {
-    padding: 10px;
+    padding: 0 10px 10px 10px; /* ลด padding บน เพื่อให้ชื่อชิดรูปขึ้น */
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1; /* ให้กล่องข้อความยืดเต็มพื้นที่ที่เหลือ */
 }
 
-/* ชื่อสินค้า */
 .product-name {
-    font-size: 14px;
+    font-size: 13px; /* ปรับขนาดฟอนต์ให้กำลังดี */
     color: #333;
     line-height: 1.4;
-    height: 40px; /* บังคับความสูง */
-    overflow: hidden; /* ถ้าข้อความยาวเกินให้ซ่อน */
+    height: 36px; /* บังคับความสูงให้พอดี 2 บรรทัด */
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* ถ้าเกิน 2 บรรทัดให้ซ่อนเป็น ... */
+    -webkit-box-orient: vertical;
     margin-bottom: 5px;
 }
 
-/* ราคา */
 .price {
-    font-size: 18px;
-    color: #ee4d2d; /* สีส้ม Shopee */
+    font-size: 16px;
+    color: #ee4d2d; /* สีส้ม */
+    font-weight: bold;
+    margin-bottom: 5px; /* ลดระยะห่างด้านล่าง */
+}
+
+/* --- ส่วนใหม่: จำนวนสินค้าในสต็อก --- */
+.stock {
+    font-size: 13px;
+    color: #000;
+    font-weight: bold;
+    margin-bottom: 12px;
+}
+
+/* --- ส่วนใหม่: กลุ่มปุ่ม (จัดเรียงบน-ล่าง) --- */
+.button-group {
+    display: flex;
+    flex-direction: column; /* สั่งให้ปุ่มเรียงซ้อนกันบน-ล่าง */
+    gap: 6px; /* ระยะห่างระหว่างปุ่ม 2 ปุ่ม */
+    margin-top: auto; /* ดันกลุ่มปุ่มให้ไปอยู่ล่างสุดของกล่องเสมอ */
+}
+
+.btn-add {
+    background-color: white;
+    color: #ee4d2d;
+    border: 1px solid #ee4d2d;
+    padding: 8px 0; /* ปรับให้ปุ่มดูสูงขึ้นนิดหน่อย */
+    font-size: 12px;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none; /* เผื่อใช้กับแท็ก <a> */
+    display: block; /* ให้ปุ่มเต็มความกว้าง */
+    transition: background-color 0.2s;
+}
+
+.btn-add:hover {
+    background-color: #fdf6f5; /* เปลี่ยนสีพื้นหลังอ่อนๆ แทนที่จะเป็นสีทึบ */
+}
+
+/* --- ปุ่มเปลี่ยนหน้า (Pagination) --- */
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+    margin-bottom: 50px;
+    gap: 5px;
+}
+
+.pagination a {
+    display: inline-block;
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    text-decoration: none;
+    color: #333;
+    background-color: white;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.pagination a:hover {
+    background-color: #f5f5f5;
+}
+
+/* ไฮไลท์หน้าปัจจุบันให้เป็นสีส้ม */
+.pagination a.active {
+    background-color: #ee4d2d;
+    color: white;
+    border: 1px solid #ee4d2d;
     font-weight: bold;
 }
