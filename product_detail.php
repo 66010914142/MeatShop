@@ -1,3 +1,5 @@
+<?php 
+require_once ("../partials/header.php"); ?>
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -9,17 +11,6 @@
 </head>
 <body>
 
-    <div class="navbar">
-        <a href="index.php" class="logo">🥩 MeatShop</a>
-        <div class="search-box">
-            <input type="text" placeholder="ค้นหาสินค้า...">
-            <button>🔍 ค้นหา</button>
-        </div>
-        <div class="nav-links">
-            <a href="cart.php">🛒 ตะกร้าสินค้า (0)</a>
-            <a href="login.php">👤 เข้าสู่ระบบ / สมัครสมาชิก</a>
-        </div>
-    </div>
 
     <div class="container">
         <a href="index.php" class="btn-back">⬅ กลับไปหน้าสินค้า</a>
@@ -29,7 +20,7 @@
         
         if(isset($_GET['id']) && $_GET['id'] != "") {
             $id = mysqli_real_escape_string($conn, $_GET['id']);
-            $sql = "SELECT * FROM `products` WHERE `P_id` = '$id'";
+            $sql = "SELECT * FROM `Products` WHERE `P_id` = '$id'";
             $rs = mysqli_query($conn, $sql);
             
             if($rs && mysqli_num_rows($rs) > 0) {
