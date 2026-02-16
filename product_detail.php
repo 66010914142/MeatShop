@@ -20,7 +20,7 @@ include_once("config/connectdb.php");
         $id = mysqli_real_escape_string($conn, $_GET['id']);
         
         // ใช้ชื่อตาราง products (ตัวเล็ก) ตามฐานข้อมูลจริง
-        $sql = "SELECT * FROM `products` WHERE `P_id` = '$id'"; 
+        $sql = "SELECT * FROM `Products` WHERE `P_id` = '$id'"; 
         $rs = mysqli_query($conn, $sql);
         
         if($rs && mysqli_num_rows($rs) > 0) {
