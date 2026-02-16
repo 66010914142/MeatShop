@@ -1,23 +1,32 @@
 <?php 
+// 1. จัดการเรื่อง Error (เปิดไว้เพื่อดูว่ามีอะไรผิดพลาดบน Server จริงหรือไม่)
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
 require_once ("../partials/header.php"); 
 include_once("../config/connectdb.php");
 
-// 1. รับค่าจาก URL ทั้งคำค้นหา (search) และ รหัสหมวดหมู่ (cat_id)
-$search = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET['search']) : '';
-$cat_id = isset($_GET['cat_id']) ? mysqli_real_escape_string($conn, $_GET['cat_id']) : '';
+// ตรวจสอบการเชื่อมต่อ
+if (!$conn) {
+    die("<div class='alert alert-danger'>เชื่อมต่อ DB ไม่ได้: " . mysqli_connect_error() . "</div>");
+}
 
-// 2. ตั้งค่าการแบ่งหน้า
+// 2. รับค่าจาก URL
+$search = isset($_GET['search']) ? mysqli_real_escape_string($conn, trim($_GET['search'])) : '';
+$cat_id = isset($_GET['cat_id']) ? mysqli_real_escape_string($conn, trim($_GET['cat_id'])) : '';
+
+// 3. ตั้งค่าการแบ่งหน้า
 $per_page = 16; 
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1; 
 $start = ($page - 1) * $per_page; 
 
-// 3. สร้างเงื่อนไข SQL (WHERE) ให้รองรับทั้งค้นหาชื่อและรหัสหมวดหมู่
+// 4. สร้างเงื่อนไขการค้นหา (Logic: ถ้าเข้าหน้าแรกเงื่อนไขจะเป็นค่าว่าง จะดึงสินค้าทั้งหมดทันที)
 $conditions = [];
-if ($search != "") {
+if ($search !== "") {
     $conditions[] = "P_name LIKE '%$search%'";
 }
-if ($cat_id != "") {
-    $conditions[] = "C_id = '$cat_id'"; // กรองตามรหัสหมวดหมู่ที่คุณส่งมา (เช่น mc01)
+if ($cat_id !== "") {
+    $conditions[] = "C_id = '$cat_id'";
 }
 
 $where_clause = "";
@@ -25,16 +34,23 @@ if (count($conditions) > 0) {
     $where_clause = " WHERE " . implode(" AND ", $conditions);
 }
 
-// นับจำนวนทั้งหมดเพื่อทำ Pagination
-$sql_total = "SELECT COUNT(*) as total FROM `products` $where_clause";
+// 5. นับจำนวน (ใช้ชื่อตาราง Products ตัว P ใหญ่ตามรูปของคุณ)
+$sql_total = "SELECT COUNT(*) as total FROM `Products` $where_clause";
 $rs_total = mysqli_query($conn, $sql_total);
-$row_total = mysqli_fetch_assoc($rs_total);
-$total_records = $row_total['total'];
+$total_records = 0;
+if ($rs_total) {
+    $row_total = mysqli_fetch_assoc($rs_total);
+    $total_records = $row_total['total'];
+}
 $total_pages = ceil($total_records / $per_page); 
 
-// 4. ดึงข้อมูลสินค้าตามเงื่อนไข
-$sql = "SELECT * FROM `products` $where_clause LIMIT $start, $per_page";
+// 6. ดึงข้อมูลสินค้า (ใช้ชื่อตาราง Products ตัว P ใหญ่)
+$sql = "SELECT * FROM `Products` $where_clause LIMIT $start, $per_page";
 $rs = mysqli_query($conn, $sql);
+
+if (!$rs) {
+    die("<div class='alert alert-danger'>SQL Error: " . mysqli_error($conn) . "</div>");
+}
 ?>
 
 <div class="container mt-4">
@@ -56,59 +72,55 @@ $rs = mysqli_query($conn, $sql);
         <div class="input-group">
             <input type="text" name="search" class="form-control" placeholder="พิมพ์ชื่อสินค้า..." value="<?= htmlspecialchars($search) ?>">
             <button class="btn btn-primary" type="submit">🔍 ค้นหา</button>
-            <?php if($search != "" || $cat_id != ""): ?>
-                <a href="index.php" class="btn btn-outline-secondary">ล้างการตั้งค่า</a>
-            <?php endif; ?>
         </div>
     </form>
 
-    <?php if ($search != "" || $cat_id != ""): ?>
-        <p>พบสินค้าทั้งหมด <?= $total_records ?> รายการ</p>
-    <?php endif; ?>
-
-    <div class="product-grid"> 
+    <div class="row row-cols-1 row-cols-md-4 g-4">
         <?php 
-        if ($rs && mysqli_num_rows($rs) > 0) {
+        if (mysqli_num_rows($rs) > 0) {
             while($data = mysqli_fetch_array($rs)) { 
         ?>
-            <div class="product-card">
-                <img src="../img/<?= $data['P_id'] ?>.<?= $data['P_img'] ?>" alt="รูปสินค้า" class="product-img">
-                <div class="product-info">
-                    <div class="product-name"><?= $data['P_name'] ?></div>
-                    <div class="price">฿<?= number_format($data['P_price'], 2) ?></div>
-                    <div class="stock">มีสินค้าในสต็อก: <?= $data['P_amonut'] ?> ชิ้น</div>
-                    <a href="product_detail.php?id=<?= $data['P_id'] ?>" class="btn-add">รายละเอียดสินค้า</a> 
-                    <button class="btn-add">เพิ่มลงตะกร้า</button>
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    <img src="../img/<?= $data['P_id'] ?>.<?= $data['P_img'] ?>" 
+                         class="card-img-top" 
+                         style="height: 200px; object-fit: cover;"
+                         onerror="this.src='https://via.placeholder.com/200x200?text=No+Image'">
+                    
+                    <div class="card-body text-center">
+                        <h5 class="card-title"><?= htmlspecialchars($data['P_name']) ?></h5>
+                        <p class="text-danger fw-bold h5">฿<?= number_format($data['P_price'], 2) ?></p>
+                        <p class="small text-muted">คงเหลือ: <?= $data['P_amonut'] ?> ชิ้น</p>
+                        
+                        <div class="d-grid gap-2">
+                            <a href="product_detail.php?id=<?= $data['P_id'] ?>" class="btn btn-sm btn-outline-primary">รายละเอียด</a>
+                            <button class="btn btn-sm btn-success">ลงตะกร้า</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         <?php 
             } 
         } else {
-            echo "<div class='col-12 text-center p-5'><p>ไม่พบสินค้าในหมวดหมู่นี้</p></div>";
+            echo "<div class='col-12 text-center py-5'><h4>ไม่พบสินค้าในรายการ</h4></div>";
         }
         ?>
     </div>
 
-    <div class="pagination mt-5 justify-content-center">
-        <?php 
-        $params = $_GET; // ดึงค่า Parameter ทั้งหมดจาก URL
-        unset($params['page']); // ลบค่า page เดิมออก
-        $query_string = http_build_query($params); // สร้าง query string ใหม่ (เช่น search=หมู&cat_id=mc01)
-        $url_params = ($query_string != "") ? "&" . $query_string : "";
-        ?>
-
-        <?php if($page > 1): ?>
-            <a href="?page=<?= $page - 1 ?><?= $url_params ?>">&laquo; ก่อนหน้า</a>
-        <?php endif; ?>
-
-        <?php for($i = 1; $i <= $total_pages; $i++): ?>
-            <a href="?page=<?= $i ?><?= $url_params ?>" class="<?= ($page == $i) ? 'active' : '' ?>">
-                <?= $i ?>
-            </a>
-        <?php endfor; ?>
-
-        <?php if($page < $total_pages): ?>
-            <a href="?page=<?= $page + 1 ?><?= $url_params ?>">ถัดไป &raquo;</a>
-        <?php endif; ?>
-    </div>
+    <?php if ($total_pages > 1): ?>
+    <nav class="mt-5">
+        <ul class="pagination justify-content-center">
+            <?php 
+            $params = $_GET; unset($params['page']);
+            $url_params = http_build_query($params);
+            $url_params = ($url_params != "") ? "&" . $url_params : "";
+            ?>
+            <?php for($i = 1; $i <= $total_pages; $i++): ?>
+                <li class="page-item <?= ($page == $i) ? 'active' : '' ?>">
+                    <a class="page-link" href="?page=<?= $i ?><?= $url_params ?>"><?= $i ?></a>
+                </li>
+            <?php endfor; ?>
+        </ul>
+    </nav>
+    <?php endif; ?>
 </div>
