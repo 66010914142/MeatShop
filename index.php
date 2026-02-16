@@ -82,7 +82,7 @@ if (!$rs) {
         ?>
             <div class="col">
                 <div class="card h-100 shadow-sm">
-                    <img src="../img/<?= $data['P_id'] ?>.<?= $data['P_img'] ?>" 
+                    <img src="img/<?= $data['P_id'] ?>.<?= $data['P_img'] ?>" 
                          class="card-img-top" 
                          style="height: 200px; object-fit: cover;"
                          onerror="this.src='https://via.placeholder.com/200x200?text=No+Image'">
