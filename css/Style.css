@@ -1,3 +1,4 @@
+/* --- พื้นฐาน --- */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -5,143 +6,147 @@
 }
 
 body {
-    font-family: 'Arial', sans-serif;
-    background-color: #f5f5f5; /* พื้นหลังสีเทาอ่อนแบบเว็บขายของ */
-    padding: 20px;
-}
-
-.container {
-    max-width: 1000px; /* จำกัดความกว้างให้พอดีสายตา */
-    margin: 0 auto;
-}
-
-h1 {
-    margin-bottom: 20px;
+    font-family: 'Prompt', sans-serif;
+    background-color: #f4f4f4;
     color: #333;
-    font-size: 24px;
 }
 
-/* --- ตัวจัดการตาราง (สร้างเป็น Grid คอลัมน์เล็กๆ) --- */
+/* --- กล่องสินค้า (Product Card) --- */
 .product-grid {
     display: grid;
-    /* บังคับขนาดกล่องให้เล็ก แถวละ 4-5 ชิ้น */
-    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); 
-    gap: 15px; /* เพิ่มระยะห่างระหว่างกล่องนิดหน่อยให้ดูไม่อึดอัด */
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); 
+    gap: 20px;
 }
 
-/* --- กล่องสินค้า --- */
 .product-card {
     background-color: #fff;
-    border: 1px solid transparent;
+    border: none;
+    border-radius: 12px;
     display: flex;
     flex-direction: column;
-    transition: transform 0.2s, border 0.2s, box-shadow 0.2s;
-    padding-bottom: 10px; /* เพิ่มพื้นที่ด้านล่างกล่องให้ปุ่ม */
+    transition: all 0.3s ease;
+    overflow: hidden;
+    height: 100%;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
-/* เอฟเฟกต์ตอนชี้เมาส์ */
 .product-card:hover {
-    border: 1px solid #ee4d2d;
-    transform: translateY(-2px); /* ลอยขึ้นนิดๆ */
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    transform: translateY(-8px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.12);
 }
 
-/* --- รูปภาพ (บังคับเล็กและเป็นสี่เหลี่ยมจัตุรัส) --- */
-.product-img {
+/* --- รูปภาพสินค้า --- */
+.product-img-box {
     width: 100%;
-    aspect-ratio: 1 / 1; /* บังคับให้เป็นสัดส่วน 1:1 เสมอ */
-    object-fit: contain; /* รูปไม่เบี้ยว */
-    padding: 10px; /* เพิ่ม padding ให้รูปมีขอบขาวรอบๆ ตามเรฟ */
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    background-color: #fff;
+    padding: 10px;
 }
 
+.product-img-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transition: transform 0.5s;
+}
+
+.product-card:hover .product-img-box img {
+    transform: scale(1.05);
+}
+
+/* --- ข้อมูลสินค้า --- */
 /* --- ส่วนข้อมูลด้านล่างรูป --- */
 .product-info {
-    padding: 0 10px 10px 10px; /* ลด padding บน เพื่อให้ชื่อชิดรูปขึ้น */
+    padding: 15px;
     display: flex;
     flex-direction: column;
-    flex-grow: 1; /* ให้กล่องข้อความยืดเต็มพื้นที่ที่เหลือ */
+    flex-grow: 1; /* บังคับให้ส่วนข้อมูลยืดเต็มพื้นที่การ์ด */
 }
 
 .product-name {
-    font-size: 13px; /* ปรับขนาดฟอนต์ให้กำลังดี */
+    font-size: 14px;
+    font-weight: 500;
     color: #333;
     line-height: 1.4;
-    height: 36px; /* บังคับความสูงให้พอดี 2 บรรทัด */
+    
+    /* 🛠️ จุดสำคัญ: บังคับความสูงให้เท่ากับ 2 บรรทัดเสมอ */
+    height: 40px; 
     overflow: hidden;
     display: -webkit-box;
-    -webkit-line-clamp: 2; /* ถ้าเกิน 2 บรรทัดให้ซ่อนเป็น ... */
+    -webkit-line-clamp: 2; /* ถ้าชื่อยาวเกินจะตัดเป็น ... */
     -webkit-box-orient: vertical;
+    
+    margin-bottom: 10px;
+}
+
+
+.price {
+    font-size: 18px;
+    color: #e74c3c; /* สีแดงสำหรับราคา */
+    font-weight: 700;
     margin-bottom: 5px;
 }
 
-.price {
-    font-size: 16px;
-    color: #ee4d2d; /* สีส้ม */
-    font-weight: bold;
-    margin-bottom: 5px; /* ลดระยะห่างด้านล่าง */
+.stock-status {
+    font-size: 12px;
+    color: #6c757d;
+    margin-bottom: 15px;
 }
 
-/* --- ส่วนใหม่: จำนวนสินค้าในสต็อก --- */
-.stock {
-    font-size: 13px;
-    color: #000;
-    font-weight: bold;
-    margin-bottom: 12px;
-}
-
-/* --- ส่วนใหม่: กลุ่มปุ่ม (จัดเรียงบน-ล่าง) --- */
+/* --- ส่วนปุ่มกด --- */
 .button-group {
     display: flex;
-    flex-direction: column; /* สั่งให้ปุ่มเรียงซ้อนกันบน-ล่าง */
-    gap: 6px; /* ระยะห่างระหว่างปุ่ม 2 ปุ่ม */
-    margin-top: auto; /* ดันกลุ่มปุ่มให้ไปอยู่ล่างสุดของกล่องเสมอ */
+    flex-direction: column;
+    gap: 8px;
+    
+    /* 🛠️ จุดสำคัญ: ดันกลุ่มปุ่มให้ลงไปติดขอบล่างของการ์ดเสมอ */
+    margin-top: auto; 
 }
 
-.btn-add {
-    background-color: white;
-    color: #ee4d2d;
-    border: 1px solid #ee4d2d;
-    padding: 8px 0; /* ปรับให้ปุ่มดูสูงขึ้นนิดหน่อย */
-    font-size: 12px;
-    cursor: pointer;
+.btn-detail, .btn-cart {
+    width: 100%;
+    padding: 8px;
+    border-radius: 6px;
+    font-size: 13px;
     text-align: center;
-    text-decoration: none; /* เผื่อใช้กับแท็ก <a> */
-    display: block; /* ให้ปุ่มเต็มความกว้าง */
-    transition: background-color 0.2s;
-}
-
-.btn-add:hover {
-    background-color: #fdf6f5; /* เปลี่ยนสีพื้นหลังอ่อนๆ แทนที่จะเป็นสีทึบ */
-}
-
-/* --- ปุ่มเปลี่ยนหน้า (Pagination) --- */
-.pagination {
-    display: flex;
-    justify-content: center;
-    margin-top: 30px;
-    margin-bottom: 50px;
-    gap: 5px;
-}
-
-.pagination a {
-    display: inline-block;
-    padding: 8px 12px;
-    border: 1px solid #ccc;
     text-decoration: none;
-    color: #333;
-    background-color: white;
-    border-radius: 4px;
-    transition: background-color 0.2s;
+    transition: 0.3s;
 }
-
-.pagination a:hover {
-    background-color: #f5f5f5;
-}
-
-/* ไฮไลท์หน้าปัจจุบันให้เป็นสีส้ม */
-.pagination a.active {
-    background-color: #ee4d2d;
+.btn-detail {
+    background-color: #007bff; /* สีฟ้าสำหรับปุ่มดูรายละเอียด */
     color: white;
-    border: 1px solid #ee4d2d;
+    border: none;}
+
+.btn-detail:hover {
+    background-color: #f8f9fa;
+}
+
+.btn-cart {
+    background-color: #28a745; /* สีเขียวสำหรับปุ่มซื้อ */
+    color: white;
+    border: none;
+    padding: 8px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    transition: 0.3s;
+}
+
+.btn-cart:hover {
+    background-color: #218838;
+}
+
+/* --- Pagination --- */
+.pagination-container .page-link {
+    color: #2c3e50;
+    border: none;
+    margin: 0 3px;
+    border-radius: 5px;
+}
+
+.pagination-container .page-item.active .page-link {
+    background-color: #FFD700; /* สีทอง มมส. */
+    color: #2c3e50;
     font-weight: bold;
 }

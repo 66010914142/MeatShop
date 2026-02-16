@@ -35,7 +35,7 @@ if (count($conditions) > 0) {
 }
 
 // 5. นับจำนวน (ใช้ชื่อตาราง Products ตัว P ใหญ่ตามรูปของคุณ)
-$sql_total = "SELECT COUNT(*) as total FROM `Products` $where_clause";
+$sql_total = "SELECT COUNT(*) as total FROM `products` $where_clause";
 $rs_total = mysqli_query($conn, $sql_total);
 $total_records = 0;
 if ($rs_total) {
@@ -45,7 +45,7 @@ if ($rs_total) {
 $total_pages = ceil($total_records / $per_page); 
 
 // 6. ดึงข้อมูลสินค้า (ใช้ชื่อตาราง Products ตัว P ใหญ่)
-$sql = "SELECT * FROM `Products` $where_clause LIMIT $start, $per_page";
+$sql = "SELECT * FROM `products` $where_clause LIMIT $start, $per_page";
 $rs = mysqli_query($conn, $sql);
 
 if (!$rs) {

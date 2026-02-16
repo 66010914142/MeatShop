@@ -1,69 +1,84 @@
 <?php 
-// 1. เปิด Error Reporting (เฉพาะช่วงพัฒนา)
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
+// 1. จัดการเรื่อง Session และเชื่อมต่อไฟล์ (ไฟล์นี้อยู่ที่ Root ไม่ต้องมี ../)
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
-// 2. เรียก Header (ซึ่งมีแท็ก <html> และ <head> อยู่แล้ว)
 require_once ("partials/header.php"); 
 include_once("config/connectdb.php"); 
 ?>
 
-<link rel="stylesheet" href="css/styleproduct.css">
+<div class="container mt-4">
+    <div class="mb-4">
+        <a href="index.php" class="btn btn-outline-secondary shadow-sm">
+            <i class="fa-solid fa-arrow-left me-2"></i>กลับไปหน้าสินค้า
+        </a>
+    </div>
 
-<?php
-if(isset($_GET['id']) && !empty($_GET['id'])) {
-    $id = mysqli_real_escape_string($conn, $_GET['id']);
-    
-    // ตรวจสอบชื่อตารางให้เป็นตัวเล็กตามฐานข้อมูล
-    $sql = "SELECT * FROM `products` WHERE `P_id` = '$id'"; 
-    $rs = mysqli_query($conn, $sql);
-    
-    if($rs && mysqli_num_rows($rs) > 0) {
-        $data = mysqli_fetch_assoc($rs);
-?>
-        <div class="row bg-white p-4 rounded-4 shadow-sm mt-2">
-            <div class="col-md-6 mb-4 mb-md-0">
-                <div class="product-image-section text-center">
+    <?php
+    if(isset($_GET['id']) && $_GET['id'] != "") {
+        $id = mysqli_real_escape_string($conn, $_GET['id']);
+        
+        // ใช้ชื่อตาราง products (ตัวเล็ก) ตามฐานข้อมูลจริง
+        $sql = "SELECT * FROM `products` WHERE `P_id` = '$id'"; 
+        $rs = mysqli_query($conn, $sql);
+        
+        if($rs && mysqli_num_rows($rs) > 0) {
+            $data = mysqli_fetch_assoc($rs);
+    ?>
+            <div class="row bg-white p-4 rounded-4 shadow-sm border">
+                <div class="col-md-6 mb-4 mb-md-0 text-center">
                     <img src="img/<?= $data['P_id'] ?>.<?= $data['P_img'] ?>" 
-                         class="img-fluid rounded-3 shadow"
+                         class="img-fluid rounded-3 shadow" 
+                         style="max-height: 450px; object-fit: contain;"
                          onerror="this.src='https://via.placeholder.com/500x500?text=No+Image'">
                 </div>
-            </div>
-            
-            <div class="col-md-6">
-                <div class="ps-md-4">
-                    <h1 class="fw-bold text-dark mb-3"><?= htmlspecialchars($data['P_name']) ?></h1>
-                    <div class="h2 text-danger fw-bold mb-4">฿<?= number_format($data['P_price'], 2) ?></div>
+                
+                <div class="col-md-6 ps-md-5">
+                    <h1 class="fw-bold text-dark mb-2"><?= htmlspecialchars($data['P_name']) ?></h1>
+                    <div class="h2 text-danger fw-bold my-4">฿<?= number_format($data['P_price'], 2) ?></div>
                     
-                    <div class="mb-4">
+                    <div class="p-3 bg-light rounded-3 mb-4 border-start border-4 border-warning">
                         <h6 class="fw-bold">รายละเอียดสินค้า:</h6>
-                        <p class="text-muted"><?= !empty($data['P_description']) ? nl2br(htmlspecialchars($data['P_description'])) : 'ไม่มีข้อมูลรายละเอียด' ?></p>
+                        <p class="text-muted mb-0">
+                            <?= !empty($data['p_description']) ? nl2br(htmlspecialchars($data['p_description'])) : 'ไม่มีข้อมูลรายละเอียดสินค้า' ?>
+                        </p>
                     </div>
-                    
+
                     <form action="cart.php" method="POST">
                         <input type="hidden" name="P_id" value="<?= $data['P_id'] ?>">
                         <div class="mb-4">
-                            <label class="form-label fw-bold">จำนวน</label>
-                            <div class="input-group" style="width: 140px;">
+                            <label class="form-label fw-bold">เลือกจำนวน</label>
+                            <div class="input-group shadow-sm" style="width: 140px;">
                                 <button type="button" class="btn btn-dark" onclick="stepDown()">-</button>
-                                <input type="number" id="qty" name="quantity" value="1" min="1" max="<?= $data['P_amonut'] ?>" class="form-control text-center">
+                                <input type="number" id="qty" name="quantity" value="1" min="1" 
+                                       max="<?= $data['P_amonut'] ?>" class="form-control text-center fw-bold">
                                 <button type="button" class="btn btn-dark" onclick="stepUp()">+</button>
                             </div>
+                            <small class="text-muted mt-2 d-block">คงเหลือในสต็อก: <?= $data['P_amonut'] ?> ชิ้น</small>
                         </div>
-                        <button type="submit" name="add_to_cart" class="btn btn-success btn-lg w-100 fw-bold">🛒 หยิบใส่ตะกร้า</button>
+                        <div class="d-grid gap-2">
+                            <button type="submit" name="add_to_cart" class="btn btn-success btn-lg fw-bold shadow">
+                                <i class="fa-solid fa-cart-plus me-2"></i>หยิบใส่ตะกร้า
+                            </button>
+                            <button type="submit" name="buy_now" class="btn btn-outline-primary">ซื้อสินค้าทันที</button>
+                        </div>
                     </form>
                 </div>
             </div>
-        </div>
-<?php
+    <?php
+        } else {
+            echo "<div class='alert alert-danger text-center p-5'>ไม่พบข้อมูลสินค้านี้ในระบบ</div>";
+        }
     }
-}
-?>
+    ?>
+</div>
 
 <script>
 function stepUp() {
     var input = document.getElementById('qty');
-    if (parseInt(input.value) < parseInt(input.max)) input.value = parseInt(input.value) + 1;
+    var max = parseInt(input.max);
+    if (parseInt(input.value) < max) input.value = parseInt(input.value) + 1;
 }
 function stepDown() {
     var input = document.getElementById('qty');
@@ -72,6 +87,6 @@ function stepDown() {
 </script>
 
 <?php 
-// 3. ปิดท้ายด้วย Footer (ซึ่งจะปิดแท็ก </div>, </main>, </body>, </html> ให้เอง)
+// เรียก Footer เพื่อปิดแท็ก HTML ให้สมบูรณ์
 require_once ("partials/footer.php"); 
 ?>
