@@ -3,8 +3,8 @@
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
-require_once ("../partials/header.php"); 
-include_once("../config/connectdb.php");
+require_once ("partials/header.php"); 
+include_once("config/connectdb.php");
 
 // ตรวจสอบการเชื่อมต่อ
 if (!$conn) {
