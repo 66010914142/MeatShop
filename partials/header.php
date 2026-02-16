@@ -75,8 +75,8 @@ if (session_status() === PHP_SESSION_NONE) {
                     <span class="text-white me-2">👋 <?= htmlspecialchars($_SESSION['user']['name'] ?? 'สมาชิก') ?></span>
                     <a class="btn btn-outline-light" href="<?= base_url('logout.php') ?>">ออกจากระบบ</a>
                 <?php else: ?>
-                    <a class="btn btn-outline-light" href="<?= ('/login.php') ?>">เข้าสู่ระบบ</a>
-                    <a class="btn btn-warning fw-bold" href="<?= ('/register.php') ?>">สมัครสมาชิก</a>
+                    <a class="btn btn-outline-light" href="<?= ('front/login.php') ?>">เข้าสู่ระบบ</a>
+                    <a class="btn btn-warning fw-bold" href="<?= ('front/register.php') ?>">สมัครสมาชิก</a>
                 <?php endif; ?>
             </div>
         </div>
