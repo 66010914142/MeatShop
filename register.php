@@ -61,7 +61,7 @@
 
 <?php 
 if (isset($_POST["register"])) {
-    include_once("../config/connectdb.php"); // ตรวจสอบ Path ให้ถูกต้อง
+    include_once("config/connectdb.php");
 
     $u_name     = mysqli_real_escape_string($conn, $_POST['u_name']);
     $u_email    = mysqli_real_escape_string($conn, $_POST['u_email']);
