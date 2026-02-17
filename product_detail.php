@@ -85,8 +85,3 @@ function stepDown() {
     if (parseInt(input.value) > 1) input.value = parseInt(input.value) - 1;
 }
 </script>
-
-<?php 
-// เรียก Footer เพื่อปิดแท็ก HTML ให้สมบูรณ์
-require_once ("partials/footer.php"); 
-?>
