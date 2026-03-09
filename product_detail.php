@@ -1,5 +1,5 @@
 <?php 
-// 1. จัดการเรื่อง Session และเชื่อมต่อไฟล์ (ไฟล์นี้อยู่ที่ Root ไม่ต้องมี ../)
+// 1. จัดการเรื่อง Session และเชื่อมต่อไฟล์
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -19,7 +19,6 @@ include_once("config/connectdb.php");
     if(isset($_GET['id']) && $_GET['id'] != "") {
         $id = mysqli_real_escape_string($conn, $_GET['id']);
         
-        // ใช้ชื่อตาราง products (ตัวเล็ก) ตามฐานข้อมูลจริง
         $sql = "SELECT * FROM `products` WHERE `P_id` = '$id'"; 
         $rs = mysqli_query($conn, $sql);
         
@@ -45,39 +44,24 @@ include_once("config/connectdb.php");
                         </p>
                     </div>
 
-                    <form action="cart.php" method="POST">
-                        <input type="hidden" name="P_id" value="<?= $data['P_id'] ?>">
+                    <form action="add_to_cart.php" method="GET">
+                        <input type="hidden" name="id" value="<?= $data['P_id'] ?>">
+                        
                         <div class="mb-4">
                             <label class="form-label fw-bold">เลือกจำนวน</label>
                             <div class="input-group shadow-sm" style="width: 140px;">
                                 <button type="button" class="btn btn-dark" onclick="stepDown()">-</button>
-                                <input type="number" id="qty" name="quantity" value="1" min="1" 
+                                <input type="number" id="qty" name="qty" value="1" min="1" 
                                        max="<?= $data['P_amonut'] ?>" class="form-control text-center fw-bold">
                                 <button type="button" class="btn btn-dark" onclick="stepUp()">+</button>
                             </div>
                             <small class="text-muted mt-2 d-block">คงเหลือในสต็อก: <?= $data['P_amonut'] ?> ชิ้น</small>
                         </div>
-                        <div class="d-grid gap-2">
-<form action="add_to_cart.php" method="GET">
-    <input type="hidden" name="id" value="<?= $data['P_id'] ?>">
-    
-    <div class="mb-4">
-        <label class="form-label fw-bold">เลือกจำนวน</label>
-        <div class="input-group shadow-sm" style="width: 140px;">
-            <button type="button" class="btn btn-dark" onclick="stepDown()">-</button>
-            <input type="number" id="qty" name="qty" value="1" min="1" 
-                   max="<?= $data['P_amonut'] ?>" class="form-control text-center fw-bold">
-            <button type="button" class="btn btn-dark" onclick="stepUp()">+</button>
-        </div>
-        <small class="text-muted mt-2 d-block">คงเหลือในสต็อก: <?= $data['P_amonut'] ?> ชิ้น</small>
-    </div>
 
-    <div class="d-grid gap-2">
-        <button type="submit" class="btn btn-lg btn-success shadow-sm">
-            <i class="fa-solid fa-cart-plus me-2"></i>เพิ่มลงตะกร้าสินค้า
-        </button>
-    </div>
-</form>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-lg btn-success shadow-sm">
+                                <i class="fa-solid fa-cart-plus me-2"></i>เพิ่มลงตะกร้าสินค้า
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -94,10 +78,12 @@ include_once("config/connectdb.php");
 function stepUp() {
     var input = document.getElementById('qty');
     var max = parseInt(input.max);
-    if (parseInt(input.value) < max) input.value = parseInt(input.value) + 1;
+    var current = parseInt(input.value);
+    if (current < max) input.value = current + 1;
 }
 function stepDown() {
     var input = document.getElementById('qty');
-    if (parseInt(input.value) > 1) input.value = parseInt(input.value) - 1;
+    var current = parseInt(input.value);
+    if (current > 1) input.value = current - 1;
 }
 </script>
