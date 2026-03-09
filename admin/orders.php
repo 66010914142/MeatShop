@@ -7,8 +7,8 @@
     $res_today = mysqli_query($conn, $sql_count_today);
     $count_today = mysqli_fetch_array($res_today)['total'] ?? 0;
 
-    // นับออเดอร์ที่มีการแนบสลิปมาแล้วแต่ยังไม่ได้ตรวจสอบ (สถานะยังเป็น รอชำระเงิน)
-    $sql_count_wait = "SELECT COUNT(or_id) as total FROM orders WHERE or_status = 'รอชำระเงิน' AND or_slip_img IS NOT NULL";
+    // นับออเดอร์ที่มีการแจ้งโอนแล้ว (รอตรวจ)
+    $sql_count_wait = "SELECT COUNT(or_id) as total FROM orders WHERE or_status = 'รอชำระเงิน' AND or_slip_img IS NOT NULL AND or_slip_img != ''";
     $res_wait = mysqli_query($conn, $sql_count_wait);
     $count_wait = mysqli_fetch_array($res_wait)['total'] ?? 0;
 ?>
@@ -33,7 +33,7 @@
         .sidebar .nav-link.active { background-color: #0d6efd; color: white; }
         .main-content { padding: 20px; }
         .table-card { border: none; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .slip-preview { width: 45px; height: 45px; object-fit: cover; border-radius: 8px; cursor: pointer; border: 2px solid #fff; shadow: 0 2px 5px rgba(0,0,0,0.1); transition: 0.2s; }
+        .slip-preview { width: 45px; height: 45px; object-fit: cover; border-radius: 8px; cursor: pointer; border: 2px solid #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: 0.2s; }
         .slip-preview:hover { transform: scale(1.1); border-color: #0d6efd; }
     </style>
 </head>
@@ -107,13 +107,12 @@
                                         <div class="fw-bold"><?php echo htmlspecialchars($data['u_name']); ?></div>
                                         <button class="btn btn-sm text-primary p-0 border-0 bg-transparent text-decoration-underline" 
                                                 style="font-size: 0.8rem;"
-                                                onclick="viewAddress('<?php echo htmlspecialchars($data['u_name']); ?>', '<?php echo addslashes(htmlspecialchars($data['u_add'])); ?>')">
+                                                onclick="viewAddress('<?php echo htmlspecialchars($data['u_name']); ?>', '<?php echo addslashes(htmlspecialchars($data['u_add'] ?? "")); ?>')">
                                             <i class="fa-solid fa-location-dot me-1"></i>ดูที่อยู่ส่งของ
                                         </button>
                                     </td>
                                     <td>
                                         <?php if (!empty($data['or_slip_img'])) { 
-                                            // แก้ไข Path: ถอยออกจาก admin แล้วไปที่โฟลเดอร์ slip
                                             $slip_path = "../slips/" . $data['or_slip_img'];
                                         ?>
                                             <img src="<?php echo $slip_path; ?>" class="slip-preview shadow-sm" onclick="viewSlip('<?php echo $slip_path; ?>')">
@@ -214,6 +213,9 @@
             data: { or_id: orId },
             success: function(res) {
                 $('#modal_content').html(res);
+            },
+            error: function() {
+                $('#modal_content').html('<div class="alert alert-danger m-3">ไม่สามารถดึงข้อมูลได้</div>');
             }
         });
     }
