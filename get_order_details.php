@@ -1,12 +1,13 @@
 <?php
-include_once("config/connectdb.php");
+// แก้ไข Path ให้ถูกต้อง (ถ้าไฟล์นี้อยู่ในโฟลเดอร์ admin ต้องถอยออกไปหา config)
+include_once("../config/connectdb.php"); 
 
 if(isset($_GET['or_id'])) {
-    $or_id = mysqli_real_escape_string($conn, $_GET['or_id']);
+    $or_id = mysqli_real_escape_string($conn, trim($_GET['or_id']));
     
-    // 1. ดึงข้อมูลรายการสินค้า (Join ตาราง products)
-    $sql_items = "SELECT od.*, p.P_name, p.P_id, p.P_img 
-                  FROM order_details od 
+    // 1. ดึงข้อมูลรายการสินค้า (แก้ไขชื่อตารางเป็น order_Details ตาม DB จริง)
+    $sql_items = "SELECT od.*, p.P_name, p.P_id 
+                  FROM order_Details od 
                   JOIN products p ON od.P_id = p.P_id 
                   WHERE od.or_id = '$or_id'";
     $res_items = mysqli_query($conn, $sql_items);
@@ -25,15 +26,16 @@ if(isset($_GET['or_id'])) {
         
         $grand_total = 0;
         while($item = mysqli_fetch_array($res_items)) {
+            // ใช้ชื่อคอลัมน์ quantity และ price_per_unit ตามรูป phpMyAdmin
             $subtotal = $item['quantity'] * $item['price_per_unit'];
             $grand_total += $subtotal;
 
-            // แก้ไข Path รูปสินค้า: บังคับเป็น .jpg เพราะใน DB เป็นค่าว่าง
-            $p_img_path = "img/" . $item['P_id'] . ".jpg"; 
+            // แก้ไข Path รูปสินค้า: ถอยออกจาก admin ไปหา img
+            $p_img_path = "../img/" . $item['P_id'] . ".jpg"; 
 
             echo '<tr class="hover:bg-gray-50">';
             echo '<td class="p-3 flex items-center">';
-            echo '<img src="'.$p_img_path.'" class="w-10 h-10 object-cover rounded mr-3 border shadow-sm" onerror="this.src=\'https://via.placeholder.com/60?text=No+Img\'">';
+            echo '<img src="'.$p_img_path.'?t='.time().'" class="w-10 h-10 object-cover rounded mr-3 border shadow-sm" onerror="this.src=\'https://via.placeholder.com/60?text=No+Img\'">';
             echo '<span class="font-medium text-gray-700">' . htmlspecialchars($item['P_name']) . '</span>';
             echo '</td>';
             echo '<td class="p-3 text-center">' . $item['quantity'] . '</td>';
@@ -48,12 +50,15 @@ if(isset($_GET['or_id'])) {
         echo '</tfoot>';
         echo '</table>';
         echo '</div>';
+    } else {
+        // แจ้งเตือนถ้าหาข้อมูลใน order_Details ไม่เจอ
+        echo '<div class="p-5 text-center text-gray-500">ไม่พบรายการสินค้าในออเดอร์นี้ (SQL Error: '.mysqli_error($conn).')</div>';
     }
 
     // --- ส่วนแสดงรูปสลิป ---
     if (!empty($order_data['or_slip_img'])) {
-        // ใช้โฟลเดอร์ slips ตามที่ซันแจ้งว่ามีอยู่จริง
-        $slip_path = "slips/" . $order_data['or_slip_img']; 
+        // Path รูปสลิป: ถอยออกจาก admin ไปหา slips
+        $slip_path = "../slips/" . $order_data['or_slip_img']; 
 
         echo '<div class="mt-6 p-4 bg-gray-50 rounded-xl border border-dashed border-gray-300 text-center">';
         echo '<p class="text-sm font-bold text-gray-600 mb-3"><i class="fa-solid fa-receipt me-1"></i> หลักฐานการชำระเงิน</p>';
