@@ -1,6 +1,6 @@
 <?php
 session_start();
-include_once("../config/connectdb.php");
+include_once("config/connectdb.php");
 
 if (isset($_POST["login"])) {
     $email = mysqli_real_escape_string($conn, $_POST['u_email']);

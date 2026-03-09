@@ -20,7 +20,7 @@ include_once("config/connectdb.php");
         $id = mysqli_real_escape_string($conn, $_GET['id']);
         
         // ใช้ชื่อตาราง products (ตัวเล็ก) ตามฐานข้อมูลจริง
-        $sql = "SELECT * FROM `Products` WHERE `P_id` = '$id'"; 
+        $sql = "SELECT * FROM `products` WHERE `P_id` = '$id'"; 
         $rs = mysqli_query($conn, $sql);
         
         if($rs && mysqli_num_rows($rs) > 0) {
@@ -58,10 +58,26 @@ include_once("config/connectdb.php");
                             <small class="text-muted mt-2 d-block">คงเหลือในสต็อก: <?= $data['P_amonut'] ?> ชิ้น</small>
                         </div>
                         <div class="d-grid gap-2">
-                            <button type="submit" name="add_to_cart" class="btn btn-success btn-lg fw-bold shadow">
-                                <i class="fa-solid fa-cart-plus me-2"></i>หยิบใส่ตะกร้า
-                            </button>
-                            <button type="submit" name="buy_now" class="btn btn-outline-primary">ซื้อสินค้าทันที</button>
+<form action="add_to_cart.php" method="GET">
+    <input type="hidden" name="id" value="<?= $data['P_id'] ?>">
+    
+    <div class="mb-4">
+        <label class="form-label fw-bold">เลือกจำนวน</label>
+        <div class="input-group shadow-sm" style="width: 140px;">
+            <button type="button" class="btn btn-dark" onclick="stepDown()">-</button>
+            <input type="number" id="qty" name="qty" value="1" min="1" 
+                   max="<?= $data['P_amonut'] ?>" class="form-control text-center fw-bold">
+            <button type="button" class="btn btn-dark" onclick="stepUp()">+</button>
+        </div>
+        <small class="text-muted mt-2 d-block">คงเหลือในสต็อก: <?= $data['P_amonut'] ?> ชิ้น</small>
+    </div>
+
+    <div class="d-grid gap-2">
+        <button type="submit" class="btn btn-lg btn-success shadow-sm">
+            <i class="fa-solid fa-cart-plus me-2"></i>เพิ่มลงตะกร้าสินค้า
+        </button>
+    </div>
+</form>
                         </div>
                     </form>
                 </div>
@@ -85,8 +101,3 @@ function stepDown() {
     if (parseInt(input.value) > 1) input.value = parseInt(input.value) - 1;
 }
 </script>
-
-<?php 
-// เรียก Footer เพื่อปิดแท็ก HTML ให้สมบูรณ์
-require_once ("partials/footer.php"); 
-?>
