@@ -1,8 +1,16 @@
 <?php
 session_start();
+// ตรวจสอบว่ามี u_id หรือยัง ถ้าไม่มีให้เด้งไปหน้า login
+if (!isset($_SESSION['u_id'])) {
+    header("Location: login.php");
+    exit();
+}
+include_once("config/connectdb.php");
+// ... โค้ดเดิมของซัน ...
+
 include_once("config/connectdb.php");
 include_once("partials/header.php");
-
+?>
 // ตรวจสอบว่ามีตะกร้าหรือยัง
 $total_price = 0;
 ?>
