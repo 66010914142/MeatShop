@@ -18,12 +18,13 @@ if (isset($_POST['action']) && $_POST['action'] == 'update_product') {
         
         if (in_array($ext, $allowed)) {
             $new_name = $id . ".jpg"; 
-            $path     = "../img/" . $new_name; //
+            $path     = "../img/" . $new_name;
             if(file_exists($path)) { @unlink($path); }
             move_uploaded_file($_FILES["p_image"]["tmp_name"], $path);
         }
     }
     
+    // ตรวจสอบชื่อคอลัมน์ P_amonut (เช็คตัวสะกด amonut/amount ใน DB อีกครั้งนะครับ)
     $sql_update = "UPDATE products SET 
                     P_name        = '$name', 
                     P_price       = '$price', 
@@ -38,7 +39,7 @@ if (isset($_POST['action']) && $_POST['action'] == 'update_product') {
 
 // --- 2. รับค่าค้นหาและหมวดหมู่ ---
 $filter_cat = isset($_GET['cat_id']) ? mysqli_real_escape_string($conn, $_GET['cat_id']) : '';
-$search_query = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET['search']) : ''; // รับค่าค้นหา
+$search_query = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET['search']) : '';
 
 $sql_categories = "SELECT * FROM categories ORDER BY c_name_th ASC";
 $res_categories = mysqli_query($conn, $sql_categories);
@@ -109,7 +110,7 @@ while($row = mysqli_fetch_array($res_categories)) {
                         <select name="cat_id" class="form-select">
                             <option value="">--- ทุกหมวดหมู่ ---</option>
                             <?php foreach($categories_array as $cat): ?>
-                                <option value="<?php echo $cat['c_id']; ?>" <?php echo ($filter_cat == $cat['c_id']) ? 'selected' : ''; ?>>
+                                <option value="<?php echo $cat['C_id']; ?>" <?php echo ($filter_cat == $cat['C_id']) ? 'selected' : ''; ?>>
                                     <?php echo $cat['c_name_th']; ?>
                                 </option>
                             <?php endforeach; ?>
@@ -139,7 +140,6 @@ while($row = mysqli_fetch_array($res_categories)) {
                         </thead>
                         <tbody>
                             <?php
-                            // สร้างเงื่อนไขการกรอง (WHERE Clause)
                             $conditions = [];
                             if ($filter_cat != "") { $conditions[] = "p.C_id = '$filter_cat'"; }
                             if ($search_query != "") { $conditions[] = "p.P_name LIKE '%$search_query%'"; }
@@ -147,14 +147,13 @@ while($row = mysqli_fetch_array($res_categories)) {
                             $where_sql = count($conditions) > 0 ? " WHERE " . implode(" AND ", $conditions) : "";
                             
                             $sql = "SELECT p.*, c.c_name_th FROM products p 
-                                    LEFT JOIN categories c ON p.C_id = c.c_id 
+                                    LEFT JOIN categories c ON p.C_id = c.C_id 
                                     $where_sql ORDER BY p.P_id ASC";
                             $rs = mysqli_query($conn, $sql);
                             
                             if ($rs && mysqli_num_rows($rs) > 0):
                                 while ($data = mysqli_fetch_array($rs)):
                                     $p_id = $data['P_id'];
-                                    // Path รูปภาพที่ซันต้องการ
                                     $img_path = "../img/" . $p_id . ".jpg"; 
                                     $display_img = file_exists($img_path) ? $img_path."?t=".time() : "https://via.placeholder.com/60?text=No+Img";
                             ?>
@@ -211,8 +210,9 @@ while($row = mysqli_fetch_array($res_categories)) {
                     <div class="mb-3">
                         <label class="form-label fw-semibold">ประเภทสินค้า</label>
                         <select class="form-select" id="edit_c_id" name="c_id" required>
+                            <option value="">--- เลือกหมวดหมู่ ---</option>
                             <?php foreach($categories_array as $cat): ?>
-                                <option value="<?php echo $cat['c_id']; ?>"><?php echo $cat['c_name_th']; ?></option>
+                                <option value="<?php echo $cat['C_id']; ?>"><?php echo $cat['c_name_th']; ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>
@@ -246,7 +246,7 @@ while($row = mysqli_fetch_array($res_categories)) {
         document.getElementById('edit_p_price').value = price;
         document.getElementById('edit_p_description').value = desc;
         document.getElementById('edit_p_amount').value = amount;
-        document.getElementById('edit_c_id').value = cat_id;
+        document.getElementById('edit_c_id').value = cat_id; // ตัวแปรนี้จะแมตช์กับ value ใน option
         document.getElementById('preview_img').src = img;
         document.getElementById('p_image').value = "";
         new bootstrap.Modal(document.getElementById('editModal')).show();
@@ -269,7 +269,7 @@ while($row = mysqli_fetch_array($res_categories)) {
         .then(data => {
             if (data.trim() === "success") {
                 Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ!', showConfirmButton: false, timer: 1500 }).then(() => location.reload());
-            } else { Swal.fire('Error', 'ไม่สามารถบันทึกได้', 'error'); }
+            } else { Swal.fire('Error', 'ไม่สามารถบันทึกได้: ' + data, 'error'); }
         });
     };
 
