@@ -1,29 +1,30 @@
 <?php
-session_start();
-include_once("config/connectdb.php");
+session_start(); //
+include_once("config/connectdb.php"); //
 
 if (isset($_POST["login"])) {
-    $email = mysqli_real_escape_string($conn, $_POST['u_email']);
-    $password = $_POST['psw'];
+    $email = mysqli_real_escape_string($conn, $_POST['u_email']); //
+    $password = $_POST['psw']; //
 
-    // ค้นหาจาก u_email เท่านั้น
-    $sql = "SELECT * FROM user_login WHERE u_email = '$email'";
-    $result = mysqli_query($conn, $sql);
+    $sql = "SELECT * FROM user_login WHERE u_email = '$email'"; //
+    $result = mysqli_query($conn, $sql); //
 
     if ($result && mysqli_num_rows($result) > 0) {
-        $row = mysqli_fetch_assoc($result);
+        $row = mysqli_fetch_assoc($result); //
         
-        // ตรวจสอบรหัสผ่าน Hash
         if (password_verify($password, $row['u_password'])) {
-            $_SESSION['user_id'] = $row['u_id'];
-            $_SESSION['user_name'] = $row['u_name'];
+            // แก้ไข: เปลี่ยนชื่อตัวแปรให้ตรงกับหน้า cart.php และหน้าอื่นๆ
+            $_SESSION['u_id'] = $row['u_id']; 
+            $_SESSION['u_name'] = $row['u_name'];
             
-            echo "<script>alert('เข้าสู่ระบบสำเร็จ'); window.location.href='index.php';</script>";
+            // ใช้ header แทนการ echo script เพื่อป้องกันปัญหา Session ไม่บันทึกบน Server
+            header("Location: index.php");
+            exit(); 
         } else {
-            echo "<script>alert('รหัสผ่านไม่ถูกต้อง');</script>";
+            echo "<script>alert('รหัสผ่านไม่ถูกต้อง');</script>"; //
         }
     } else {
-        echo "<script>alert('ไม่พบอีเมลนี้ในระบบ');</script>";
+        echo "<script>alert('ไม่พบอีเมลนี้ในระบบ');</script>"; //
     }
 }
 ?>
