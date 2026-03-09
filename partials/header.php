@@ -98,10 +98,10 @@ $query_cat = mysqli_query($conn, $sql_cat);
                     </span>
                 </a>
 
-                <?php if (isset($_SESSION['user_id'])): ?>
+                <?php if (isset($_SESSION['u_id'])): ?>
                     <div class="dropdown">
                         <button class="btn btn-link text-white text-decoration-none dropdown-toggle p-0" type="button" data-bs-toggle="dropdown">
-                            <i class="fa-solid fa-circle-user fs-4 me-1 text-warning"></i> <?= htmlspecialchars($_SESSION['user_name']) ?>
+                            <i class="fa-solid fa-circle-user fs-4 me-1 text-warning"></i> <?= htmlspecialchars($_SESSION['u_name']) ?>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end shadow border-0">
                             <li><a class="dropdown-item py-2" href="<?= base_url('profile.php') ?>">ข้อมูลส่วนตัว</a></li>
