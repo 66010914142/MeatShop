@@ -3,19 +3,19 @@ ob_start();
 session_start();
 include_once("config/connectdb.php");
 
-// ตรวจสอบการเข้าสู่ระบบ
-if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
+// แก้ไข: ตรวจสอบการเข้าสู่ระบบโดยใช้ u_id (ตัวเล็ก) ให้ตรงกับ login.php
+if (!isset($_SESSION['u_id']) || empty($_SESSION['u_id'])) {
     header("Location: login.php");
     exit();
 }
 
-$u_id = $_SESSION['user_id'];
+$u_id = $_SESSION['u_id']; // เปลี่ยนจาก user_id เป็น u_id
 
 // ดึงข้อมูลผู้ใช้งาน
 $user_query = mysqli_query($conn, "SELECT * FROM user_login WHERE u_id = '$u_id'");
 $user = mysqli_fetch_array($user_query);
 
-// ดึงประวัติการสั่งซื้อ (อ้างอิงชื่อคอลัมน์ตามโครงสร้างจริงของคุณ)
+// ดึงประวัติการสั่งซื้อ
 $order_query = mysqli_query($conn, "SELECT * FROM orders WHERE u_id = '$u_id' ORDER BY or_date DESC");
 ?>
 
@@ -36,9 +36,14 @@ $order_query = mysqli_query($conn, "SELECT * FROM orders WHERE u_id = '$u_id' OR
     <div class="container mx-auto px-4 py-10">
         <div class="flex justify-between items-center mb-8">
             <h1 class="text-3xl font-bold text-gray-800">จัดการบัญชีผู้ใช้งาน</h1>
-            <a href="index.php" class="bg-gray-800 text-white px-6 py-2 rounded-lg hover:bg-gray-900 transition flex items-center shadow-md">
-                <i class="fa-solid fa-house me-2"></i> กลับหน้าแรก
-            </a>
+            <div class="flex gap-2">
+                <a href="index.php" class="bg-gray-800 text-white px-6 py-2 rounded-lg hover:bg-gray-900 transition flex items-center shadow-md">
+                    <i class="fa-solid fa-house me-2"></i> กลับหน้าแรก
+                </a>
+                <a href="logout.php" class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition flex items-center shadow-md">
+                    <i class="fa-solid fa-right-from-bracket me-2"></i> ออกจากระบบ
+                </a>
+            </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -47,21 +52,21 @@ $order_query = mysqli_query($conn, "SELECT * FROM orders WHERE u_id = '$u_id' OR
                 <form action="update_profile.php" method="POST" class="space-y-4">
                     <div>
                         <label class="block text-sm font-semibold text-gray-600">ชื่อผู้ใช้งาน</label>
-                        <input type="text" name="u_name" value="<?php echo $user['u_name']; ?>" class="w-full border border-gray-300 p-2.5 rounded-lg mt-1 focus:ring-2 focus:ring-blue-500 outline-none transition">
+                        <input type="text" name="u_name" value="<?php echo htmlspecialchars($user['u_name']); ?>" class="w-full border border-gray-300 p-2.5 rounded-lg mt-1 focus:ring-2 focus:ring-blue-500 outline-none">
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-gray-600">อีเมล (เปลี่ยนไม่ได้)</label>
-                        <input type="text" value="<?php echo $user['u_email']; ?>" class="w-full border border-gray-300 p-2.5 rounded-lg mt-1 bg-gray-50 text-gray-500 cursor-not-allowed" disabled>
+                        <input type="text" value="<?php echo htmlspecialchars($user['u_email']); ?>" class="w-full border border-gray-300 p-2.5 rounded-lg mt-1 bg-gray-50 text-gray-500 cursor-not-allowed" disabled>
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-gray-600">เบอร์โทรศัพท์</label>
-                        <input type="text" name="u_phone" value="<?php echo $user['u_phone']; ?>" class="w-full border border-gray-300 p-2.5 rounded-lg mt-1 focus:ring-2 focus:ring-blue-500 outline-none">
+                        <input type="text" name="u_phone" value="<?php echo htmlspecialchars($user['u_phone']); ?>" class="w-full border border-gray-300 p-2.5 rounded-lg mt-1 focus:ring-2 focus:ring-blue-500 outline-none">
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-gray-600">ที่อยู่จัดส่ง</label>
-                        <textarea name="u_add" class="w-full border border-gray-300 p-2.5 rounded-lg mt-1 focus:ring-2 focus:ring-blue-500 outline-none" rows="3"><?php echo $user['u_add']; ?></textarea>
+                        <textarea name="u_add" class="w-full border border-gray-300 p-2.5 rounded-lg mt-1 focus:ring-2 focus:ring-blue-500 outline-none" rows="3"><?php echo htmlspecialchars($user['u_add']); ?></textarea>
                     </div>
-                    <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-xl hover:bg-blue-700 transition font-bold shadow-lg shadow-blue-200">บันทึกข้อมูล</button>
+                    <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-xl hover:bg-blue-700 transition font-bold shadow-lg">บันทึกข้อมูล</button>
                 </form>
             </div>
 
@@ -70,7 +75,7 @@ $order_query = mysqli_query($conn, "SELECT * FROM orders WHERE u_id = '$u_id' OR
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
                         <thead>
-                            <tr class="bg-gray-50 border-b text-gray-500 text-sm uppercase tracking-wider">
+                            <tr class="bg-gray-50 border-b text-gray-500 text-sm uppercase">
                                 <th class="p-4 font-semibold">เลขที่สั่งซื้อ</th>
                                 <th class="p-4 font-semibold">วันที่</th>
                                 <th class="p-4 text-right font-semibold">ยอดรวม</th>
@@ -98,7 +103,7 @@ $order_query = mysqli_query($conn, "SELECT * FROM orders WHERE u_id = '$u_id' OR
                                     </td>
                                     <td class="p-4 text-center">
                                         <button onclick="openModal('<?php echo $row['or_id']; ?>')" 
-                                                class="bg-blue-50 text-blue-600 px-4 py-1.5 rounded-lg hover:bg-blue-600 hover:text-white transition font-semibold text-xs shadow-sm border border-blue-100">
+                                                class="bg-blue-50 text-blue-600 px-4 py-1.5 rounded-lg hover:bg-blue-600 hover:text-white transition font-semibold text-xs border border-blue-100">
                                             <i class="fa-solid fa-list-ul me-1"></i> รายละเอียด
                                         </button>
                                     </td>
@@ -140,16 +145,14 @@ $order_query = mysqli_query($conn, "SELECT * FROM orders WHERE u_id = '$u_id' OR
             modal.classList.remove('opacity-0', 'pointer-events-none');
             document.body.classList.add('modal-active');
 
-            // ดึงข้อมูลผ่าน AJAX
+            $('#modalBody').html('<div class="flex justify-center py-10"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div></div>');
+
             $.ajax({
                 url: 'get_order_details.php',
                 type: 'GET',
                 data: { or_id: orId },
                 success: function(response) {
                     $('#modalBody').html(response);
-                },
-                error: function() {
-                    $('#modalBody').html('<p class="text-red-500 text-center">เกิดข้อผิดพลาดในการโหลดข้อมูล</p>');
                 }
             });
         }
@@ -158,7 +161,6 @@ $order_query = mysqli_query($conn, "SELECT * FROM orders WHERE u_id = '$u_id' OR
             const modal = document.getElementById('orderModal');
             modal.classList.add('opacity-0', 'pointer-events-none');
             document.body.classList.remove('modal-active');
-            $('#modalBody').html('<div class="flex justify-center py-10"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div></div>');
         }
     </script>
 </body>
