@@ -2,12 +2,14 @@
 include_once("connectdb.php");
 
 if (isset($_GET['or_id'])) {
-    $or_id = mysqli_real_escape_string($conn, $_GET['or_id']);
+    $or_id = mysqli_real_escape_string($conn, trim($_GET['or_id']));
     
-    // ตรวจสอบชื่อคอลัมน์ P_id, P_name ให้ตรงกับ Database ของคุณ
-    $sql = "SELECT d.*, p.P_name FROM orders_detail d 
+    // แก้ไขชื่อตารางเป็น order_Details และ Join กับ products
+    $sql = "SELECT d.*, p.P_name 
+            FROM order_Details d 
             LEFT JOIN products p ON d.P_id = p.P_id 
             WHERE d.or_id = '$or_id'";
+            
     $rs = mysqli_query($conn, $sql);
 
     echo '<div class="table-responsive p-3">
@@ -23,14 +25,17 @@ if (isset($_GET['or_id'])) {
                 </thead>
                 <tbody>';
 
-    if (mysqli_num_rows($rs) > 0) {
+    if ($rs && mysqli_num_rows($rs) > 0) {
         while ($item = mysqli_fetch_array($rs)) {
             $p_id = $item['P_id'];
-            // Path รูป: ถอยออกไปนอกโฟลเดอร์ admin แล้วเข้า img
+            // Path รูปภาพ (ถอยออกไปหาโฟลเดอร์ img)
             $img_path = "../img/" . $p_id . ".jpg"; 
             $display_img = file_exists($img_path) ? $img_path . "?t=" . time() : "https://via.placeholder.com/50?text=No+Img";
             
-            $total_row = $item['p_price'] * $item['p_amount'];
+            // ดึงค่าจากคอลัมน์จริงใน DB ของคุณ: price_per_unit และ quantity
+            $price = $item['price_per_unit'];
+            $qty = $item['quantity'];
+            $total_row = $price * $qty;
 
             echo '<tr>
                     <td class="text-center">
@@ -40,13 +45,13 @@ if (isset($_GET['or_id'])) {
                         <div class="fw-bold">'.$item['P_name'].'</div>
                         <div class="text-muted small">ID: #'.$p_id.'</div>
                     </td>
-                    <td class="text-center">฿'.number_format($item['p_price'], 2).'</td>
-                    <td class="text-center">'.$item['p_amount'].'</td>
+                    <td class="text-center">฿'.number_format($price, 2).'</td>
+                    <td class="text-center">'.$qty.' ชิ้น</td>
                     <td class="text-end fw-bold text-primary">฿'.number_format($total_row, 2).'</td>
                   </tr>';
         }
     } else {
-        echo '<tr><td colspan="5" class="text-center py-4">ไม่พบรายการสินค้าในออเดอร์นี้</td></tr>';
+        echo '<tr><td colspan="5" class="text-center py-5 text-muted">ไม่พบรายการสินค้าในออเดอร์นี้ (ID: '.$or_id.')</td></tr>';
     }
 
     echo '</tbody></table></div>';
