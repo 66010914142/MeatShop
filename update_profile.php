@@ -3,8 +3,8 @@ ob_start();
 session_start();
 include_once("config/connectdb.php");
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user_id'])) {
-    $u_id = $_SESSION['user_id'];
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['u_id'])) {
+    $u_id = $_SESSION['u_id'];
     
     // รับค่าจากฟอร์มและป้องกัน SQL Injection
     $u_name = mysqli_real_escape_string($conn, $_POST['u_name']);
