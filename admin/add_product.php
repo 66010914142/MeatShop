@@ -16,14 +16,23 @@
         $p_price = (int)$_POST['p_price'];
         $c_id = mysqli_real_escape_string($conn, $_POST['C_id']);
 
-        // จัดการเรื่องรูปภาพ
-        $p_img = "";
+        // --- ส่วนที่แก้ไข: จัดการเรื่องรูปภาพให้เก็บเฉพาะนามสกุล ---
+        $p_img = ""; 
         if($_FILES['p_img']['name'] != "") {
-            $ext = pathinfo($_FILES['p_img']['name'], PATHINFO_EXTENSION);
-            $new_name = "prod_" . uniqid() . "." . $ext;
-            if (!is_dir("images")) { mkdir("images"); }
-            move_uploaded_file($_FILES['p_img']['tmp_name'], "images/" . $new_name);
-            $p_img = $new_name;
+            // 1. ดึงนามสกุลไฟล์ออกมา และแปลงเป็นตัวพิมพ์เล็ก
+            $ext = strtolower(pathinfo($_FILES['p_img']['name'], PATHINFO_EXTENSION));
+            
+            // 2. ตั้งชื่อไฟล์จริงบน Server ตาม P_id (เช่น DS001.jpg)
+            $new_name = $p_id . "." . $ext;
+            
+            // 3. ตรวจสอบ/สร้างโฟลเดอร์ img (ให้ตรงกับหน้า index)
+            if (!is_dir("img")) { mkdir("img", 0777, true); }
+            
+            // 4. อัปโหลดไฟล์ไปที่ Folder img
+            if(move_uploaded_file($_FILES['p_img']['tmp_name'], "img/" . $new_name)) {
+                // 5. บันทึก "เฉพาะนามสกุล" ลงตัวแปรเพื่อลง Database
+                $p_img = $ext; 
+            }
         }
 
         // --- ตรวจสอบและบันทึกลง Database ---
@@ -72,7 +81,6 @@
         .form-card { border: none; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border-top: 5px solid #0d6efd; }
         .preview-img { max-width: 200px; border-radius: 12px; display: none; margin-top: 15px; border: 3px solid #0d6efd; padding: 5px; background: white; }
         .text-blue-theme { color: #0d6efd !important; }
-        /* สไตล์สำหรับฟิลด์ที่บังคับกรอก */
         .label-req::after { content: " *"; color: #dc3545; font-weight: bold; }
     </style>
 </head>
@@ -167,7 +175,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    // ฟังก์ชันแสดงตัวอย่างรูปภาพทันทีที่เลือกไฟล์
     function previewImage(input) {
         const preview = document.getElementById('img-preview');
         if (input.files && input.files[0]) {
@@ -180,7 +187,6 @@
         }
     }
 
-    // แจ้งเตือนเมื่อทำงานสำเร็จ
     <?php if(isset($status)): ?>
     Swal.fire({
         title: '<?php echo ($status == "success") ? "ดำเนินการสำเร็จ!" : "เกิดข้อผิดพลาด!"; ?>',
