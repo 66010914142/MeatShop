@@ -19,18 +19,16 @@
         // --- ส่วนที่แก้ไข: จัดการเรื่องรูปภาพให้เก็บเฉพาะนามสกุล ---
         $p_img = ""; 
         if($_FILES['p_img']['name'] != "") {
-            // 1. ดึงนามสกุลไฟล์ออกมา และแปลงเป็นตัวพิมพ์เล็ก
+            // 1. ดึงนามสกุลไฟล์ออกมา (เช่น jpg, png)
             $ext = strtolower(pathinfo($_FILES['p_img']['name'], PATHINFO_EXTENSION));
             
-            // 2. ตั้งชื่อไฟล์จริงบน Server ตาม P_id (เช่น DS001.jpg)
-            $new_name = $p_id . "." . $ext;
-            
-            // 3. ตรวจสอบ/สร้างโฟลเดอร์ img (ให้ตรงกับหน้า index)
+            // 2. ตรวจสอบ/สร้างโฟลเดอร์ img
             if (!is_dir("img")) { mkdir("img", 0777, true); }
-            
-            // 4. อัปโหลดไฟล์ไปที่ Folder img
-            if(move_uploaded_file($_FILES['p_img']['tmp_name'], "img/" . $new_name)) {
-                // 5. บันทึก "เฉพาะนามสกุล" ลงตัวแปรเพื่อลง Database
+
+            // 3. ตั้งชื่อไฟล์จริงตาม P_id และใช้ copy ตามรูปแบบที่คุณต้องการ
+            // เช่น img/DS001.jpg
+            if(copy($_FILES['p_img']['tmp_name'], "img/" . $p_id . "." . $ext)) {
+                // 4. บันทึก "เฉพาะนามสกุล" เพื่อนำไปลง Database ตามรูปตัวอย่าง phpMyAdmin
                 $p_img = $ext; 
             }
         }
