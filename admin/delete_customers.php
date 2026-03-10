@@ -6,7 +6,7 @@ if (isset($_GET['id'])) {
     $id = mysqli_real_escape_string($conn, $_GET['id']);
     
     // คำสั่งลบ
-    $sql = "DELETE FROM customers WHERE u_id = '$id'";
+    $sql = "DELETE FROM user_login WHERE u_id = '$id'";
     
     if (mysqli_query($conn, $sql)) {
         echo "success";
