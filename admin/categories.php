@@ -19,7 +19,7 @@ if (isset($_GET['delete_id'])) {
 // --- 2. Logic การอัปเดตข้อมูล (AJAX POST) ---
 if (isset($_POST['action']) && $_POST['action'] == 'update_category') {
     $old_id = mysqli_real_escape_string($conn, $_POST['old_c_id']); 
-    $new_id = mysqli_real_escape_string($conn, $_POST['c_id']);     
+    $new_id = mysqli_real_escape_string($conn, $_POST['c_id']);      
     $c_en   = mysqli_real_escape_string($conn, $_POST['c_name_eng']);
     $c_th   = mysqli_real_escape_string($conn, $_POST['c_name_th']);
     
@@ -173,8 +173,9 @@ if (isset($_POST['action']) && $_POST['action'] == 'update_category') {
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     function openEditModal(id, nameEn, nameTh) {
-        document.getElementById('old_C_id').value = id;      
-        document.getElementById('edit_C_id').value = id;     
+        // แก้ไขให้ไอดีตรงกับที่ประกาศไว้ใน HTML
+        document.getElementById('old_c_id').value = id;      
+        document.getElementById('edit_c_id').value = id;     
         document.getElementById('edit_c_name_eng').value = nameEn;
         document.getElementById('edit_c_name_th').value = nameTh;
         new bootstrap.Modal(document.getElementById('editModal')).show();
