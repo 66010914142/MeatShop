@@ -88,7 +88,6 @@
                                     <th>ยอดรวม</th>
                                     <th>สถานะการสั่งซื้อ</th>
                                     <th>รายละเอียด</th>
-                                    <th>ลบ</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -135,11 +134,6 @@
                                             <i class="fa-solid fa-magnifying-glass me-1"></i> สินค้า
                                         </button>
                                     </td>
-                                    <td>
-                                        <button class="btn btn-sm btn-outline-danger border-0" onclick="deleteOrder('<?php echo $data['or_id']; ?>')">
-                                            <i class="fa-solid fa-trash-can"></i>
-                                        </button>
-                                    </td>
                                 </tr>
                                 <?php } ?>
                             </tbody>
@@ -158,7 +152,8 @@
                 <h5 class="modal-title fw-bold"><i class="fa-solid fa-box-open me-2 text-warning"></i>รายละเอียดออเดอร์ <span id="modal_or_id"></span></h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body p-0" id="modal_content"></div>
+            <div class="modal-body p-0" id="modal_content">
+                </div>
             <div class="modal-footer border-0">
                 <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">ปิดหน้าต่าง</button>
             </div>
@@ -221,24 +216,6 @@
             },
             error: function() {
                 $('#modal_content').html('<div class="alert alert-danger m-3">ไม่สามารถดึงข้อมูลได้</div>');
-            }
-        });
-    }
-
-    // ฟังก์ชันลบข้อมูลออเดอร์
-    function deleteOrder(orId) {
-        Swal.fire({
-            title: 'คุณแน่ใจหรือไม่?',
-            text: "ต้องการลบออเดอร์ #" + orId + " ใช่หรือไม่? ข้อมูลสินค้าในออเดอร์นี้จะถูกลบออกทั้งหมด!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#6c757d',
-            confirmButtonText: 'ยืนยันการลบ',
-            cancelButtonText: 'ยกเลิก'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.location.href = 'delete_order.php?id=' + orId;
             }
         });
     }
