@@ -16,40 +16,38 @@
         $p_price = (int)$_POST['p_price'];
         $c_id = mysqli_real_escape_string($conn, $_POST['C_id']);
 
-        // --- ส่วนที่แก้ไข: จัดการเรื่องรูปภาพให้เก็บเฉพาะนามสกุล ---
-        $p_img = ""; 
+        // --- ส่วนจัดการรูปภาพ: ดึงนามสกุลและบันทึกไฟล์ ---
+        $ext = ""; // กำหนดค่าเริ่มต้นเป็นค่าว่าง
         if($_FILES['p_img']['name'] != "") {
-            // 1. ดึงนามสกุลไฟล์ออกมา (เช่น jpg, png)
+            // ดึงนามสกุลไฟล์ เช่น jpg, png
             $ext = strtolower(pathinfo($_FILES['p_img']['name'], PATHINFO_EXTENSION));
             
-            // 2. ตรวจสอบ/สร้างโฟลเดอร์ img
+            // ตรวจสอบ/สร้างโฟลเดอร์ img
             if (!is_dir("img")) { mkdir("img", 0777, true); }
-
-            // 3. ตั้งชื่อไฟล์จริงตาม P_id และใช้ copy ตามรูปแบบที่คุณต้องการ
-            // เช่น img/DS001.jpg
-            if(copy($_FILES['p_img']['tmp_name'], "img/" . $p_id . "." . $ext)) {
-                // 4. บันทึก "เฉพาะนามสกุล" เพื่อนำไปลง Database ตามรูปตัวอย่าง phpMyAdmin
-                $p_img = $ext; 
-            }
+            
+            // ใช้ copy ย้ายไฟล์ไปที่โฟลเดอร์ โดยตั้งชื่อไฟล์เป็น [รหัสสินค้า].[นามสกุล]
+            copy($_FILES['p_img']['tmp_name'], "img/" . $p_id . "." . $ext);
         }
 
         // --- ตรวจสอบและบันทึกลง Database ---
         $check = mysqli_query($conn, "SELECT P_id FROM products WHERE P_id = '$p_id'");
         
         if (mysqli_num_rows($check) > 0) {
-            $update_img = ($p_img != "") ? ", P_img = '$p_img'" : "";
+            // กรณีอัปเดต: ถ้ามีการเลือกรูปใหม่ ($ext ไม่ว่าง) ให้แก้ไขฟิลด์ P_img ด้วย
+            $update_img_sql = ($ext != "") ? ", P_img = '$ext'" : "";
             $sql = "UPDATE products SET 
                     P_name = '$p_name', 
                     p_description = '$p_description', 
                     P_amonut = '$p_amonut', 
                     P_price = '$p_price', 
                     C_id = '$c_id' 
-                    $update_img 
+                    $update_img_sql 
                     WHERE P_id = '$p_id'";
             $msg_text = "อัปเดตข้อมูลสินค้าเรียบร้อย!";
         } else {
+            // กรณีเพิ่มใหม่: ใส่ $ext (เช่น 'jpg') ลงในฟิลด์ P_img โดยตรง
             $sql = "INSERT INTO products (P_id, P_name, p_description, P_amonut, P_price, P_img, C_id) 
-                    VALUES ('$p_id', '$p_name', '$p_description', '$p_amonut', '$p_price', '$p_img', '$c_id')";
+                    VALUES ('$p_id', '$p_name', '$p_description', '$p_amonut', '$p_price', '$ext', '$c_id')";
             $msg_text = "บันทึกสินค้าใหม่เรียบร้อย!";
         }
 
